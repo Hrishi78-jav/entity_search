@@ -7,6 +7,7 @@ from torch.utils.data import DataLoader
 # from datasets import load_dataset
 import time
 import csv
+import ast
 from itertools import chain, cycle
 
 
@@ -59,33 +60,48 @@ def build_data():
 #         return iter(self.data)
 
 class Map_dataset(torch.utils.data.Dataset):
-    def __init__(self, path="data/sample_val.csv"):
+    def __init__(self, path="data/sample_val.csv", num_hard_negative=16):
         super().__init__()
         self.df = pd.read_csv(path)
+        self.num_hard_negative = num_hard_negative
 
     def __len__(self):
         return len(self.df)
 
     def process_data(self, idx):
         query, positive = self.df['Query'].iloc[idx], self.df['Positive'].iloc[idx]
-        return InputExample(texts=[query, positive], label=1)
+        negative = []
+        if 'Negative' in self.df.columns:
+            negative = self.df['Negative'].iloc[idx]
+            if type(negative) == str:
+                negative = ast.literal_eval(negative)
+        sample = [query, str(positive)] + negative[:self.num_hard_negative]
+        return InputExample(texts=sample, label=1)
 
     def __getitem__(self, idx):
         return self.process_data(idx)
 
 
 class Iterable_dataset(torch.utils.data.IterableDataset):
-    def __init__(self, path="data/sample_val.csv", length=1000):
+    def __init__(self, path="data/sample_val.csv", length=1000, num_hard_negative=16):
         super().__init__()
         self.path = path
         self.length = length
+        self.num_hard_negative = num_hard_negative
 
     def process_data(self):
-        with open(self.path, 'r') as csvfile:
+        with open(self.path, 'r',encoding="utf8") as csvfile:
             datareader = csv.reader(csvfile)
             next(datareader, None)
-            for query, positive in datareader:
-                yield InputExample(texts=[query, positive], label=1)
+            try:
+                for query, positive in datareader:
+                    yield InputExample(texts=[query, positive], label=1)
+            except:
+                for query, positive, negative in datareader:
+                    if type(negative) == str:
+                        negative = ast.literal_eval(negative)
+                    sample = [query, str(positive)] + negative[:self.num_hard_negative]
+                    yield InputExample(texts=sample, label=1)
 
     def __len__(self):
         return self.length

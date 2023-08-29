@@ -21,6 +21,7 @@ import math
 import queue
 import tempfile
 from distutils.dir_util import copy_tree
+from pytz import timezone
 
 from sentence_transformers import SentenceTransformer
 from sentence_transformers import __MODEL_HUB_ORGANIZATION__
@@ -162,7 +163,7 @@ class custom_SentenceTransformer(nn.Sequential):
         self.eval()
         if show_progress_bar is None:
             show_progress_bar = (
-                        logger.getEffectiveLevel() == logging.INFO or logger.getEffectiveLevel() == logging.DEBUG)
+                    logger.getEffectiveLevel() == logging.INFO or logger.getEffectiveLevel() == logging.DEBUG)
 
         if convert_to_tensor:
             convert_to_numpy = False
@@ -785,7 +786,7 @@ class custom_SentenceTransformer(nn.Sequential):
                         torch.nn.utils.clip_grad_norm_(loss_model.parameters(), max_grad_norm)
                         optimizer.step()
 
-                    if step % evaluation_steps == 0:
+                    if  step % evaluation_steps == 0:
                         validation_losses = []
                         validation_mse_metrics = []
                         loss_model.eval()
@@ -801,14 +802,13 @@ class custom_SentenceTransformer(nn.Sequential):
                                                         val_features))  # goes to gpu
 
                                 val_loss = loss_model(val_features, val_labels).cpu().item()
-                                val_mse = evaluator(self, val_features, val_labels).item()
+                                val_mse = evaluator(self, val_features, val_labels)
 
                                 validation_losses.append(val_loss)
                                 validation_mse_metrics.append(val_mse)
 
                             final_validation_loss = round(np.mean(validation_losses), 4)  # val loss
-                            train_mse_metric = round(evaluator(self, features, labels).item(),
-                                                     4)  # train mse metric
+                            train_mse_metric = round(evaluator(self, features, labels), 4)  # train mse metric
                             val_mse_metric = round(np.mean(validation_mse_metrics), 4)  # val mse metric
                             print(
                                 f"Epoch:{epoch} | Step:{step} | Train_loss: {final_train_loss} | Val_loss : {final_validation_loss} | Train_rmse: {train_mse_metric} | Val_rmse:{val_mse_metric}")
@@ -829,7 +829,7 @@ class custom_SentenceTransformer(nn.Sequential):
                 training_steps += 1
                 global_step += 1
 
-                current_datetime = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+                current_datetime = datetime.datetime.now(timezone('Asia/Kolkata')).strftime("%Y-%m-%d_%H-%M-%S")
                 if evaluation_steps > 0 and step % evaluation_steps == 0:
                     print('Saving Best model...')
                     # self._eval_during_training(my_evaluator, output_path, save_best_model, epoch, -1, callback)
@@ -843,7 +843,7 @@ class custom_SentenceTransformer(nn.Sequential):
                     self._save_checkpoint(checkpoint_path, checkpoint_save_total_limit, global_step)
 
             # self._eval_during_training(my_evaluator, output_path, save_best_model, epoch, -1, callback)  #saving model
-            current_datetime = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+            current_datetime = datetime.datetime.now(timezone('Asia/Kolkata')).strftime("%Y-%m-%d_%H-%M-%S")
             self.save(output_path + f'/{current_datetime}_epoch_{epoch}')
 
         runn.finish()
@@ -1020,4 +1020,3 @@ class custom_SentenceTransformer(nn.Sequential):
         Property to set the maximal input sequence length for the model. Longer inputs will be truncated.
         """
         self._first_module().max_seq_length = value
-
