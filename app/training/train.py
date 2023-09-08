@@ -16,8 +16,8 @@ def give_dataloader_loss_evaluator(train_examples_, val_examples_, model_, batch
     training_dataloader = DataLoader(train_examples_, batch_size=batch_size_, num_workers=num_workers_,
                                      shuffle=shuffle_)
     validation_dataloader = DataLoader(val_examples_, batch_size=val_batch_size_, num_workers=num_workers_)
-    #loss_ = losses.MultipleNegativesRankingLoss(model=model_)
-    loss_ = MultipleNegativesRankingLoss2(model=model_)
+    loss_ = losses.MultipleNegativesRankingLoss(model=model_)
+    #loss_ = MultipleNegativesRankingLoss2(model=model_)
     #loss_ = MultipleNegativesRankingLoss3(model=model_)
     evaluator_ = custom_EmbeddingSimilarityEvaluator()
     return training_dataloader, validation_dataloader, loss_, evaluator_
@@ -48,25 +48,25 @@ DATA_DIR = '/home/ubuntu/data'
 s = time.time()
 print('Model loading...')
 model = custom_SentenceTransformer('all-MiniLM-L6-v2')
-# model = custom_SentenceTransformer('thenlper/gte-small')
+#model = custom_SentenceTransformer('thenlper/gte-small')
 # model = custom_SentenceTransformer('Finetuned_10M')
 print(f'Model load finished={time.time() - s}')
 
 # Hyperparameters
-batch_size = 64
-val_batch_size = 64
+batch_size = 32
+val_batch_size = 32
 epochs = 4
 shuffle = True
-num_hn = 10
-file_path = 'Finetuned_miniLM_HN_10_bs_64'
+num_hn = 20
+file_path = 'Finetuned_gte_32_20_sample_50_lm_hn_rehash'
 data_size = 1800000
 
 # Data Loady
 s = time.time()
 print('Dataset Object loading...')
-print(f'Batch_size={batch_size}, hard negatives={num_hn}')
-train_data = Map_dataset(path=DATA_DIR + '/train_hn.csv', num_hard_negative=num_hn)
-val_data = Map_dataset(path=DATA_DIR + '/val_hn.csv', num_hard_negative=num_hn)
+print(f'Batch_size={batch_size}, hard negatives={num_hn} , filepath={file_path}')
+train_data = Map_dataset(path=DATA_DIR + '/train_lm_50.csv', num_hard_negative=num_hn)
+val_data = Map_dataset(path=DATA_DIR + '/val_lm_50.csv', num_hard_negative=num_hn)
 # train_data = Iterable_dataset(path=DATA_DIR + '/train_data_10M.csv', length=10000000)
 # val_data = Iterable_dataset(path=DATA_DIR + '/val_data.csv', length=100000)
 print(f'Dataset Object finished={time.time() - s}')

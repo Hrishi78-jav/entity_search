@@ -786,7 +786,7 @@ class custom_SentenceTransformer(nn.Sequential):
                         torch.nn.utils.clip_grad_norm_(loss_model.parameters(), max_grad_norm)
                         optimizer.step()
 
-                    if  step % evaluation_steps == 0:
+                    if step % evaluation_steps == 0:
                         validation_losses = []
                         validation_mse_metrics = []
                         loss_model.eval()

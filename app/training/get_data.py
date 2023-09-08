@@ -62,7 +62,7 @@ def build_data():
 class Map_dataset(torch.utils.data.Dataset):
     def __init__(self, path="data/sample_val.csv", num_hard_negative=16):
         super().__init__()
-        self.df = pd.read_csv(path)
+        self.df = pd.read_csv(path, usecols=['Query', 'Positive', 'Negative'])
         self.num_hard_negative = num_hard_negative
 
     def __len__(self):
@@ -71,8 +71,9 @@ class Map_dataset(torch.utils.data.Dataset):
     def process_data(self, idx):
         query, positive = self.df['Query'].iloc[idx], self.df['Positive'].iloc[idx]
         negative = []
-        if 'Negative' in self.df.columns:
-            negative = self.df['Negative'].iloc[idx]
+        word = 'Negative'
+        if word in self.df.columns:
+            negative = self.df[word].iloc[idx]
             if type(negative) == str:
                 negative = ast.literal_eval(negative)
         sample = [query, str(positive)] + negative[:self.num_hard_negative]
@@ -90,7 +91,7 @@ class Iterable_dataset(torch.utils.data.IterableDataset):
         self.num_hard_negative = num_hard_negative
 
     def process_data(self):
-        with open(self.path, 'r',encoding="utf8") as csvfile:
+        with open(self.path, 'r', encoding="utf8") as csvfile:
             datareader = csv.reader(csvfile)
             next(datareader, None)
             try:

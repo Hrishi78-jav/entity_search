@@ -27,12 +27,12 @@ class MultipleNegativesRankingLoss2(nn.Module):
             self.similarity_fct(embeddings_d, embeddings_d) * self.scale)  # d * d = ((k+1)*BS) * ((k+1)*BS) = (8*8)
         batchsize = len(embeddings_q)
         # forming required masks
-        mask_qq = torch.eye(qd.shape[0])
-        mask_dd = torch.eye(qd.shape[1])
-        extra_zeros = torch.zeros(batchsize, qd.shape[1] - qd.shape[0])
+        mask_qq = torch.eye(qd.shape[0], device=qd.device)
+        mask_dd = torch.eye(qd.shape[1], device=qd.device)
+        extra_zeros = torch.zeros(batchsize, qd.shape[1] - qd.shape[0], device=qd.device)
         mask_numerator = torch.cat((mask_qq, extra_zeros), dim=1)  # q*d
-        mask_qiqj = torch.ones_like(mask_qq) - mask_qq  # q*q
-        mask_djdi = torch.ones_like(mask_dd) - mask_dd  # d*d
+        mask_qiqj = torch.ones_like(mask_qq,device=qd.device) - mask_qq  # q*q
+        mask_djdi = torch.ones_like(mask_dd,device=qd.device) - mask_dd  # d*d
 
         # numerator and denominator term according to gte paper improved contrastive loss
         numerator = (qd * mask_numerator).sum(dim=-1)
@@ -67,9 +67,9 @@ class MultipleNegativesRankingLoss3(nn.Module):
                                            embeddings_d) * self.scale)  # q * d = BS * ((k+1)*BS) = 4*8   if k=1 ===>(a,p,n)
         batchsize = len(embeddings_q)
         # forming required masks
-        mask_qq = torch.eye(qd.shape[0])
-        extra_zeros = torch.zeros(batchsize, qd.shape[1] - qd.shape[0])
-        mask_numerator = torch.cat((mask_qq, extra_zeros), dim=1)          # q*d
+        mask_qq = torch.eye(qd.shape[0],device=qd.device)
+        extra_zeros = torch.zeros(batchsize, qd.shape[1] - qd.shape[0],device=qd.device)
+        mask_numerator = torch.cat((mask_qq, extra_zeros), dim=1)  # q*d
 
         # numerator and denominator term according to gte paper improved contrastive loss
         numerator = (qd * mask_numerator).sum(dim=-1)
