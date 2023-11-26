@@ -60,9 +60,13 @@ def build_data():
 #         return iter(self.data)
 
 class Map_dataset(torch.utils.data.Dataset):
-    def __init__(self, path="data/sample_val.csv", num_hard_negative=16):
+    def __init__(self, path="data/sample_val.csv", num_hard_negative=16, nrows=10000000):
         super().__init__()
-        self.df = pd.read_csv(path, usecols=['Query', 'Positive', 'Negative'])
+        self.df = (pd.read_csv(path, usecols=['Query', 'Positive', 'Negative'], nrows=nrows).drop_duplicates(
+            subset=['Query', 'Positive'])).dropna()
+        self.df = self.df.rename(columns={'Query': 'Positive', 'Positive': 'Query'})  # reverse
+        # self.df = self.df.sample(frac=1, random_state=42, replace=False)
+        # self.df = self.df[self.df['Query'].apply(lambda x: len(x.split())) <= 50]
         self.num_hard_negative = num_hard_negative
 
     def __len__(self):
@@ -76,6 +80,8 @@ class Map_dataset(torch.utils.data.Dataset):
             negative = self.df[word].iloc[idx]
             if type(negative) == str:
                 negative = ast.literal_eval(negative)
+            if type(negative[0]) == tuple:
+                negative = [x[0] for x in negative]
         sample = [query, str(positive)] + negative[:self.num_hard_negative]
         return InputExample(texts=sample, label=1)
 

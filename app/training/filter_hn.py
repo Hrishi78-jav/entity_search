@@ -5,13 +5,16 @@ from tqdm import tqdm
 print('Loading Model---')
 model = CrossEncoder('cross-encoder/stsb-roberta-base')
 DATA_DIR = '/home/ubuntu/data'
-hn1_path = DATA_DIR + '/hard_negative_nprobe_50_miniLM_best.pkl'
+hn1_path = DATA_DIR + '/wikisql_hard_negative_nprobe_50_miniLM_best.pkl'
 hn2_path = DATA_DIR + '/hard_negative_nprobe_50_gte.pkl'
 # hn1_path = DATA_DIR + '/query_hard_negative_nprobe_10_minilm_best.pkl'
 # hn2_path = DATA_DIR + '/query_hard_negative_nprobe_10_gte.pkl'
 
+# with open(DATA_DIR + '/ner_vocab_for_3M.pkl', 'wb') as f:
+#     vocab = set(pickle.load(f))
+
 print('Loading Data---')
-with open(hn2_path, 'rb') as f:
+with open(hn1_path, 'rb') as f:
     hn = pickle.load(f)
 # with open(hn2_path, 'rb') as f:
 #     hn = pickle.load(f)
@@ -19,24 +22,24 @@ with open(hn2_path, 'rb') as f:
 print('Creating sentence pairs')
 sp = []
 for word, val in tqdm(hn.items()):
-    temp = [[word, x] for x in val[:30]]
+    temp = [[word, x] for x in val[:100]]
     sp += temp
 n = len(sp)
 
-r = list(model.predict(sp[:int(0.33 * n)], show_progress_bar=True, batch_size=32))
-with open(f'/home/ubuntu/checkpoints/models_checkpoints/entity_search/hard_negatives/query_false_negatives_hn2_1.pkl',
+r = list(model.predict(sp[:int(0.33 * n)], show_progress_bar=True, batch_size=64))
+with open(f'/home/ubuntu/checkpoints/models_checkpoints/entity_search/hard_negatives/wikisql_false_negatives_hn1_1.pkl',
           'wb') as f:
     pickle.dump(r, f)
 
 del r
-r = list(model.predict(sp[int(0.33 * n):int(0.66 * n)], show_progress_bar=True, batch_size=32))
-with open(f'/home/ubuntu/checkpoints/models_checkpoints/entity_search/hard_negatives/query_false_negatives_hn2_2.pkl',
+r = list(model.predict(sp[int(0.33 * n):int(0.66 * n)], show_progress_bar=True, batch_size=64))
+with open(f'/home/ubuntu/checkpoints/models_checkpoints/entity_search/hard_negatives/wikisql_false_negatives_hn1_2.pkl',
           'wb') as f:
     pickle.dump(r, f)
 
 del r
-r = list(model.predict(sp[int(0.66 * n):], show_progress_bar=True, batch_size=32))
-with open(f'/home/ubuntu/checkpoints/models_checkpoints/entity_search/hard_negatives/query_false_negatives_hn2_3.pkl',
+r = list(model.predict(sp[int(0.66 * n):], show_progress_bar=True, batch_size=64))
+with open(f'/home/ubuntu/checkpoints/models_checkpoints/entity_search/hard_negatives/wikisql_false_negatives_hn1_3.pkl',
           'wb') as f:
     pickle.dump(r, f)
 

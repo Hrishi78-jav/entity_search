@@ -1,6 +1,6 @@
 numpy==1.25.2
 tqdm==4.66.1
-torch>=1.6.0
+torch==2.0.1
 sentence-transformers==2.2.2
 wandb==0.15.8
 pandas==2.0.3

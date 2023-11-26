@@ -830,7 +830,7 @@ class custom_SentenceTransformer(nn.Sequential):
                 global_step += 1
 
                 current_datetime = datetime.datetime.now(timezone('Asia/Kolkata')).strftime("%Y-%m-%d_%H-%M-%S")
-                if evaluation_steps > 0 and step % evaluation_steps == 0:
+                if evaluation_steps > 0 and step % (1*evaluation_steps) == 0:
                     print('Saving Best model...')
                     # self._eval_during_training(my_evaluator, output_path, save_best_model, epoch, -1, callback)
                     self.save(output_path + f'/{current_datetime}_epoch_{epoch}_step_{step}')
