@@ -92,7 +92,7 @@ file_mounts: # Use to copy local training git repo to the remote machine
 
   # Copy data from S3 to the machine
   ~/data: 
-    source: s3://document-ai-training-data/training_data/entity_search/data_rehash    # e.g. s3://document-ai-training-data/training_data
+    source: s3://document-ai-training-data/training_data/entity_search/data_entity_matching_chatgpt    # e.g. s3://document-ai-training-data/training_data
     mode: COPY
 
   # Mount checkpoints local dir (on VM) to root of S3 bucket to auto-transfer checkpoints to S3

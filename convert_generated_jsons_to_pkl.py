@@ -15,7 +15,7 @@ def get_output2(gpt_output):
 
 
 def get_output(gpt_output):
-    input = gpt_output['input'][0]['content'].split('input_word:')[1]  # see the format of output,input
+    input = gpt_output['input'][0]['content'].split('input_product=')[1]  # see the format of output,input
     output = ast.literal_eval(gpt_output['output']['LLM_output'])
     result = []
 
@@ -35,8 +35,8 @@ def get_output(gpt_output):
 
 
 if __name__ == '__main__':
-    directory = 'C:/Users/hrishikesh/Desktop/phonetic_pharma'  # change path
-    file_list = [x for x in os.listdir(directory) if 'nov' in x]  # change the month
+    directory = 'C:/Users/hrishikesh/Desktop/negatives'  # change path
+    file_list = [x for x in os.listdir(directory) if 'dec' in x]  # change the month
     file_list = sorted(file_list, key=lambda x: int(x.split('_')[-1].replace('.json', '')))
     print(len(file_list))
 
@@ -54,7 +54,7 @@ if __name__ == '__main__':
             count += 1
             print(file_name)
 
-    with open('C:/Users/hrishikesh/Desktop/phonetic_product_output.pkl', 'wb') as f:  #change output path
+    with open('C:/Users/hrishikesh/Desktop/javis_product_negative_output.pkl', 'wb') as f:  #change output path
         pickle.dump(result, f)
 
     print(len(result), result[:5])
